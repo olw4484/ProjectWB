@@ -4,7 +4,7 @@ public class BasePlayerData : ScriptableObject
 {
     [Header("기본 능력치")]
     public float maxHP = 100f;
-    public float moveSpeed = 6f;
+    public float moveSpeed = 2.5f;
     public float dodgeCooldown = 1f;
 
     [Header("기타")]

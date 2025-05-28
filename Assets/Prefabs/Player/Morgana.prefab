@@ -66,13 +66,18 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 5251305be1197754d834b54f859d1f40,
         type: 3}
       propertyPath: m_Name
-      value: SK_DeathArcherGirlMorgana_01 Variant
+      value: Morgana
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 5251305be1197754d834b54f859d1f40,
         type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: c6f12267b3a70ff45b7b06b08864235f, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 5251305be1197754d834b54f859d1f40,
+        type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

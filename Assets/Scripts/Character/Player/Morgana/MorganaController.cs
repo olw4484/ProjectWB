@@ -10,12 +10,16 @@ public class MorganaController : BasePlayerController
     private Animator animator;
     private CharacterController characterController;
     private Vector3 moveInput;
+    private Vector3 currentInput;
     private bool isAiming = false;
+
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
+
+        Debug.Log($"[Animator 연결 확인] {animator.runtimeAnimatorController?.name ?? "null"}");
     }
 
     private void Update()
@@ -29,7 +33,10 @@ public class MorganaController : BasePlayerController
     {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
-        moveInput = new Vector3(h, 0, v).normalized;
+        Vector3 targetInput = new Vector3(h, 0, v);
+        currentInput = Vector3.Lerp(currentInput, targetInput, Time.deltaTime * 10f);
+
+        moveInput = currentInput.normalized;
 
         // 회피
         if (Input.GetKeyDown(KeyCode.Space))
@@ -50,13 +57,14 @@ public class MorganaController : BasePlayerController
 
     private void Move()
     {
-        Vector3 move = transform.forward * moveInput.z + transform.right * moveInput.x;
+        Vector3 move = (transform.forward * moveInput.z) + (transform.right * moveInput.x);
         characterController.SimpleMove(move * data.moveSpeed);
     }
 
     private void UpdateAnimator()
     {
-        float moveSpeed = moveInput.magnitude;
-        animator.SetFloat("MoveSpeed", moveSpeed);
+        animator.SetFloat("Horizontal", moveInput.x);
+        animator.SetFloat("Vertical", moveInput.z);
+        animator.SetFloat("MoveSpeed", moveInput.magnitude);
     }
 }
