@@ -11,6 +11,10 @@ public class PlayerController : BasePlayerController
 
     [Header("활 관련")]
     [SerializeField] private Transform firePoint;
+
+    [Header("공격 관련")]
+    [SerializeField] private GameObject arrowPrefab;
+    public GameObject ArrowPrefab => arrowPrefab;
     public Transform FirePoint => firePoint;
 
     [Header("이동 관련")]

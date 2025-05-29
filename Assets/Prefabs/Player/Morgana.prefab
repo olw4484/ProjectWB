@@ -160,10 +160,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: -8244472464073520519}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5251305be1197754d834b54f859d1f40,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 264853541500358948}
   m_SourcePrefab: {fileID: 100100000, guid: 5251305be1197754d834b54f859d1f40, type: 3}
 --- !u!1 &1810746985777380945 stripped
 GameObject:
@@ -211,23 +207,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentHP: 0
   isDead: 0
-  firePoint: {fileID: 0}
+  firePoint: {fileID: 7399298540399568843, guid: 951eb9260cf6ed3489a10b20dbff7723,
+    type: 3}
+  arrowPrefab: {fileID: 380100681530709340, guid: 6a93663cb438b1f429db34caa040da84,
+    type: 3}
+  moveSpeed: 3
   data: {fileID: 11400000, guid: 64630ad1dbb189f43b3facb3439caddf, type: 2}
---- !u!114 &264853541500358948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1810746985777380945}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4698f44b1719c0c4994c4e3068755a40, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentHP: 0
-  isDead: 0
-  firePoint: {fileID: 0}
 --- !u!4 &6368270287395286842 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -3638665445968614342, guid: 5251305be1197754d834b54f859d1f40,
