@@ -18,6 +18,7 @@ public class PlayerController : BasePlayerController
     private Vector2 inputDir;
     private Vector3 currentInput;
     private Vector3 moveInput;
+    private Vector3 moveInputRaw;
     public override Vector2 InputDir => inputDir;
     public Vector3 MoveInput => moveInput;
 
@@ -47,20 +48,23 @@ public class PlayerController : BasePlayerController
         UpdateAnimator();   // 애니메이터 파라미터 갱신
     }
 
+
     private void GetInput()
     {
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
+
         Vector3 targetInput = new Vector3(h, 0, v);
-        currentInput = Vector3.Lerp(currentInput, targetInput, Time.deltaTime * 90f);
-        moveInput = currentInput.normalized;
+
+        currentInput = Vector3.Lerp(currentInput, targetInput, Time.deltaTime * 40f);
+        moveInputRaw = currentInput;                     
+        moveInput = currentInput.normalized;             
         inputDir = new Vector2(h, v);
 
         Debug.Log($"[입력] H: {h}, V: {v}");
-
-        // 마우스 우클릭 시 조준
         isAiming = Input.GetMouseButton(1);
     }
+
 
     private void HandleStateInput()
     {
@@ -119,20 +123,22 @@ public class PlayerController : BasePlayerController
         float damping = 0.1f;
         float delta = Time.deltaTime;
 
-        //animator.SetFloat("Horizontal", moveInput.x, damping, delta);
-        //animator.SetFloat("Vertical", moveInput.z, damping, delta);
-        animator.SetFloat("MoveSpeed", moveInput.magnitude, damping, delta);
+        // Aim용 파라미터 (d1)
+        animator.SetFloat("d1", isAiming ? moveInput.magnitude : 0f, damping, delta);
+
+        // 일반 이동용 파라미터 (MoveSpeed)
+        animator.SetFloat("MoveSpeed", moveInputRaw.magnitude, damping, delta);
+
+        // 조준 상태
         animator.SetBool("IsAiming", isAiming);
 
-        if (moveInput.magnitude > 0.1f)
-        {
-            animator.speed = 1.4f; 
-        }
-        else
-        {
-            animator.speed = 1.0f; 
-        }
+        // 애니메이션 속도 조절
+        animator.speed = moveInput.magnitude > 0.1f ? 1.4f : 1.0f;
+
+        Debug.Log($"[Animator] MoveSpeed = {moveInput.magnitude}");
+
     }
+
 
     public override void TakeDamage(float amount)
     {

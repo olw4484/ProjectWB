@@ -12,6 +12,12 @@ public class AimState : BasePlayerState
 
     public override void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            controller.SetState(new DrawState(controller));
+            return;
+        }
+
         if (controller.InputDir.magnitude > 0.1f)
         {
             controller.Move();
@@ -21,13 +27,8 @@ public class AimState : BasePlayerState
             controller.SetState(new IdleState(controller));
             return;
         }
-
-        if (Input.GetMouseButtonDown(0)) // 좌클릭 시 발사 준비 상태 진입
-        {
-            controller.SetState(new DrawState(controller));
-            return;
-        }
     }
+
 
     public override void Exit()
     {
