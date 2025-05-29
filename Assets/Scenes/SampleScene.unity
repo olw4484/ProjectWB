@@ -122,7 +122,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &269102519
+--- !u!1001 &189522764
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -178,11 +178,6 @@ PrefabInstance:
     - target: {fileID: 1327084587417789675, guid: 9a0f329def601c847a6022f184bb3f7d,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1562726339320089449, guid: 9a0f329def601c847a6022f184bb3f7d,
-        type: 3}
-      propertyPath: m_Center.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1810746985777380945, guid: 9a0f329def601c847a6022f184bb3f7d,
@@ -613,4 +608,4 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 1510894805}
-  - {fileID: 269102519}
+  - {fileID: 189522764}

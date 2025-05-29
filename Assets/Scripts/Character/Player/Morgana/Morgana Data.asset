@@ -17,7 +17,11 @@ MonoBehaviour:
   dodgeCooldown: 1.5
   attackDamage: 10
   stamina: 100
-  arrowPrefab: {fileID: 0}
   drawTime: 0.5
   fireDelay: 0.2
   aimZoomFOV: 40
+  arrowPrefab: {fileID: 380100681530709340, guid: 6a93663cb438b1f429db34caa040da84,
+    type: 3}
+  firePoint: {fileID: 7399298540399568843, guid: 951eb9260cf6ed3489a10b20dbff7723,
+    type: 3}
+  arrowSpeed: 25
