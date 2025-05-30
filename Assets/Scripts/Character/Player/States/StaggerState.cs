@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class StaggerState : BasePlayerState
 {
-    private float staggerDuration = 0.4f;
+    private float staggerDuration = 0.6f;
     private float timer = 0f;
 
     public StaggerState(PlayerController controller) : base(controller) { }
@@ -10,8 +10,11 @@ public class StaggerState : BasePlayerState
     public override void Enter()
     {
         Debug.Log("상태 전환: StaggerState");
-        timer = 0f;
         controller.Animator.SetTrigger("Hit");
+        timer = 0f;
+
+        // 무적 시간 부여 (선택)
+        controller.SetInvincible(staggerDuration);
     }
 
     public override void Update()
@@ -22,10 +25,13 @@ public class StaggerState : BasePlayerState
         {
             if (controller.IsAiming)
                 controller.SetState(new AimState(controller));
-            else if (controller.InputDir.magnitude > 0.1f)
-                controller.SetState(new MoveState(controller));
             else
                 controller.SetState(new IdleState(controller));
         }
+    }
+
+    public override void Exit()
+    {
+        // 필요 시 초기화 로직
     }
 }

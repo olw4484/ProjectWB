@@ -2,29 +2,24 @@ using UnityEngine;
 
 public class DrawState : BasePlayerState
 {
-    private float drawDuration = 0.5f; // 활 당기기 시간
-    private float timer = 0f;
-
     public DrawState(PlayerController controller) : base(controller) { }
 
     public override void Enter()
     {
         Debug.Log("상태 전환: DrawState");
-        controller.Animator.SetTrigger("Draw"); // 애니메이션 트리거
-        timer = 0f;
+        controller.Animator.SetTrigger("Draw");
     }
 
     public override void Update()
     {
-        timer += Time.deltaTime;
-        if (timer >= drawDuration)
-        {
-            controller.SetState(new FireState(controller));
-        }
-    }
+        AnimatorStateInfo stateInfo = controller.Animator.GetCurrentAnimatorStateInfo(0);
 
-    public override void Exit()
-    {
-        // 나중에 애니메이션 리셋 등 처리 가능
+        if (stateInfo.IsName("Draw"))
+        {
+            if (stateInfo.normalizedTime >= 0.9f)
+            {
+                controller.SetState(new FireState(controller));
+            }
+        }
     }
 }

@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class RecoverState : BasePlayerState
 {
-    private float recoverDuration = 0.4f;
     private float timer = 0f;
+    private readonly float recoverDuration = 0.4f;
 
     public RecoverState(PlayerController controller) : base(controller) { }
 

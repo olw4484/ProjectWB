@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 2204425590205984064}
   serializedVersion: 2
   m_LocalRotation: {x: -0.5, y: -0.5, z: -0.5, w: 0.5}
-  m_LocalPosition: {x: 0.065, y: -0.04, z: -0.018}
+  m_LocalPosition: {x: 0.068, y: -0.036, z: -0.02}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -56,7 +56,7 @@ Transform:
   m_GameObject: {fileID: 7660039124289839837}
   serializedVersion: 2
   m_LocalRotation: {x: -0.5, y: -0.5, z: -0.5, w: 0.5}
-  m_LocalPosition: {x: -0.06, y: 0.022, z: 0.02}
+  m_LocalPosition: {x: -0.082, y: 0.038, z: 0.026}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -138,7 +138,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 5251305be1197754d834b54f859d1f40,
         type: 3}
       propertyPath: m_ApplyRootMotion
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -192,7 +192,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &-8244472464073520519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -207,11 +207,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentHP: 0
   isDead: 0
-  firePoint: {fileID: 7399298540399568843, guid: 951eb9260cf6ed3489a10b20dbff7723,
-    type: 3}
+  moveSpeed: 3
   arrowPrefab: {fileID: 380100681530709340, guid: 6a93663cb438b1f429db34caa040da84,
     type: 3}
-  moveSpeed: 3
   data: {fileID: 11400000, guid: 64630ad1dbb189f43b3facb3439caddf, type: 2}
 --- !u!4 &6368270287395286842 stripped
 Transform:

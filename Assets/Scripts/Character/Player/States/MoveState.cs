@@ -6,17 +6,13 @@ public class MoveState : BasePlayerState
 
     public override void Enter()
     {
-        Debug.Log("[MoveState] 이동 상태 진입");
+        Debug.Log("상태 전환: MoveState");
     }
 
     public override void Update()
     {
-        // 공격 입력 처리
-        if (Input.GetMouseButtonDown(0))
-        {
-            controller.SetState(new DrawState(controller));
+        if (controller.IsDead)
             return;
-        }
 
         if (controller.IsAiming)
         {
@@ -24,26 +20,18 @@ public class MoveState : BasePlayerState
             return;
         }
 
-        controller.Move();
-
         if (controller.InputDir.magnitude < 0.1f)
         {
             controller.SetState(new IdleState(controller));
             return;
         }
 
-        RotateTowardsMoveInput();
-    }
-
-    private void RotateTowardsMoveInput()
-    {
-        Vector3 moveDir = controller.MoveInput;
-        if (moveDir.sqrMagnitude > 0.01f)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            Quaternion targetRot = Quaternion.LookRotation(new Vector3(moveDir.x, 0, moveDir.z));
-            controller.transform.rotation = Quaternion.Slerp(
-                controller.transform.rotation, targetRot, Time.deltaTime * 10f
-            );
+            controller.SetState(new DodgeState(controller));
+            return;
         }
+
+        controller.Move();
     }
 }

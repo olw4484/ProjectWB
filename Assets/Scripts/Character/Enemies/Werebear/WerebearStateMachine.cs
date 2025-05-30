@@ -1,18 +1,48 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class WerebearStateMachine : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private BaseEnemyState currentState;
+
+    [field: SerializeField] public Animator Animator { get; private set; }
+    public bool IsDead { get; private set; } = false;
+    public Transform Player { get; private set; }
+    public NavMeshAgent Agent { get; private set; }
+    
+
+    private void Start()
     {
-        
+        // 초기 상태는 Idle
+        SetState(new WerebearIdleState(this));
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+        currentState?.Update();
+    }
+
+    public void SetState(BaseEnemyState newState)
+    {
+        currentState?.Exit();
+        currentState = newState;
+        currentState?.Enter();
+    }
+
+    public void Initialize(Transform player, NavMeshAgent agent, Animator animator)
+    {
+        this.Player = player;
+        this.Agent = agent;
+        this.Animator = animator;
+
+        SetState(new WerebearIdleState(this));
+    }
+
+    public void Die()
+    {
+        if (IsDead) return;
+
+        IsDead = true;
+        SetState(new WerebearDieState(this));
     }
 }

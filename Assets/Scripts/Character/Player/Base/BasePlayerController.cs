@@ -2,32 +2,42 @@ using UnityEngine;
 
 public abstract class BasePlayerController : MonoBehaviour
 {
+    public event System.Action OnDeath;
+    public event System.Action OnRevive;
+
     [Header("플레이어 공통 상태")]
-    public float currentHP;
-    public bool isDead;
+    [SerializeField] private float maxHP = 100f;
+    public float currentHP { get; private set; }
+
+    protected bool isDead = false;
+    public bool IsDead => isDead;
 
     protected BasePlayerState currentState;
 
-    public abstract Vector2 InputDir { get; }
-    public abstract void Move();
+    public BasePlayerState CurrentState => currentState;
+
+    protected virtual void Start()
+    {
+        currentHP = maxHP;
+        isDead = false;
+    }
 
     protected virtual void Update()
     {
-        currentState?.Update();
+        if (!isDead)
+            currentState?.Update();
     }
 
     protected virtual void FixedUpdate()
     {
-        currentState?.FixedUpdate();
-    }
-
-    protected virtual void Start()
-    {
-        isDead = false;
+        if (!isDead)
+            currentState?.FixedUpdate();
     }
 
     public void SetState(BasePlayerState newState)
     {
+        if (isDead) return;
+
         if (currentState != null)
             currentState.Exit();
 
@@ -37,8 +47,10 @@ public abstract class BasePlayerController : MonoBehaviour
 
     public virtual void TakeDamage(float amount)
     {
+        if (isDead) return;
+
         currentHP -= amount;
-        if (currentHP <= 0 && !isDead)
+        if (currentHP <= 0f)
         {
             Die();
         }
@@ -46,7 +58,21 @@ public abstract class BasePlayerController : MonoBehaviour
 
     protected virtual void Die()
     {
+        if (isDead) return;
+
         isDead = true;
         Debug.Log($"{gameObject.name} 사망");
+        OnDeath?.Invoke();
     }
+
+
+    public virtual void Revive(float hp)
+    {
+        currentHP = hp;
+        isDead = false;
+        OnRevive?.Invoke();
+    }
+
+    public abstract Vector2 InputDir { get; }
+    public abstract void Move();
 }

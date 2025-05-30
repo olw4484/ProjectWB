@@ -7,29 +7,27 @@ public class IdleState : BasePlayerState
     public override void Enter()
     {
         Debug.Log("상태 전환: IdleState");
-        controller.Animator.SetBool("IsAiming", false);
+        controller.Animator.SetFloat("MoveSpeed", 0f);
     }
 
     public override void Update()
     {
-        // 움직임 발생 시 MoveState로 전이
+        if (controller.IsAiming)
+        {
+            controller.SetState(new AimState(controller));
+            return;
+        }
+
         if (controller.InputDir.magnitude > 0.1f)
         {
             controller.SetState(new MoveState(controller));
             return;
         }
 
-        // 조준 상태 전이
-        if (controller.IsAiming)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            controller.SetState(new AimState(controller));
+            controller.SetState(new DodgeState(controller));
+            return;
         }
     }
-
-
-    public override void Exit()
-    {
-        
-    }
 }
-

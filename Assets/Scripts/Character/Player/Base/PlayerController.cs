@@ -1,21 +1,13 @@
 using System.Collections;
 using UnityEngine;
 
-
 [RequireComponent(typeof(CharacterController), typeof(Animator))]
 public class PlayerController : BasePlayerController
 {
     [Header("컴포넌트")]
     private Animator animator;
     private CharacterController characterController;
-
-    [Header("활 관련")]
-    [SerializeField] private Transform firePoint;
-
-    [Header("공격 관련")]
-    [SerializeField] private GameObject arrowPrefab;
-    public GameObject ArrowPrefab => arrowPrefab;
-    public Transform FirePoint => firePoint;
+    public CharacterController CharacterController => characterController;
 
     [Header("이동 관련")]
     [SerializeField] private float moveSpeed = 3.0f;
@@ -32,6 +24,15 @@ public class PlayerController : BasePlayerController
 
     public Animator Animator => animator;
 
+    [Header("장비 관련")]
+    [SerializeField] private GameObject arrowPrefab;
+    public GameObject ArrowPrefab => arrowPrefab;
+
+    private GameObject bow;
+    private Transform firePoint;
+    public Transform FirePoint => firePoint;
+    public GameObject Bow => bow;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -41,15 +42,25 @@ public class PlayerController : BasePlayerController
     protected override void Start()
     {
         base.Start();
-        SetState(new IdleState(this)); // 초기 상태
+        OnDeath += HandleDeath;
+        OnRevive += HandleRevive;
+        SetState(new IdleState(this));
     }
 
     protected override void Update()
     {
-        GetInput();         // 입력 처리
-        HandleStateInput(); // 상태 전환 조건 처리
-        base.Update();      // 상태 Update 호출
-        UpdateAnimator();   // 애니메이터 파라미터 갱신
+        if (IsDead) return;
+
+        GetInput();
+        HandleStateInput();
+        base.Update();
+        UpdateAnimator();
+    }
+
+    private void OnDisable()
+    {
+        OnDeath -= HandleDeath;
+        OnRevive -= HandleRevive;
     }
 
 
@@ -60,18 +71,18 @@ public class PlayerController : BasePlayerController
 
         Vector3 targetInput = new Vector3(h, 0, v);
 
-        currentInput = Vector3.Lerp(currentInput, targetInput, Time.deltaTime * 40f);
-        moveInputRaw = currentInput;                     
-        moveInput = currentInput.normalized;             
+        currentInput = Vector3.Lerp(currentInput, targetInput, Time.deltaTime * 90f);
+        moveInputRaw = currentInput;
+        moveInput = currentInput.normalized;
         inputDir = new Vector2(h, v);
 
-        Debug.Log($"[입력] H: {h}, V: {v}");
         isAiming = Input.GetMouseButton(1);
     }
 
-
     private void HandleStateInput()
     {
+        if (IsDead) return;
+
         if (currentState is IdleState && isAiming)
         {
             SetState(new AimState(this));
@@ -81,21 +92,19 @@ public class PlayerController : BasePlayerController
             SetState(new IdleState(this));
         }
 
-        // 회피 입력 예시 (공용)
         if (Input.GetKeyDown(KeyCode.Space))
         {
             SetState(new DodgeState(this));
             return;
         }
-
-        // 발사 입력은 DrawState / AimState 내부에서 처리
     }
 
     public override void Move()
     {
+        if (IsDead) return;
+
         Vector3 moveDir = new Vector3(moveInput.x, 0f, moveInput.z);
 
-        // 카메라 기준으로 방향 보정
         if (Camera.main != null)
         {
             Vector3 camForward = Camera.main.transform.forward;
@@ -107,7 +116,6 @@ public class PlayerController : BasePlayerController
             camForward.Normalize();
             camRight.Normalize();
 
-            // 입력을 카메라 방향으로 변환
             moveDir = camForward * moveInput.z + camRight * moveInput.x;
         }
 
@@ -118,44 +126,32 @@ public class PlayerController : BasePlayerController
             Quaternion targetRot = Quaternion.LookRotation(moveDir);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
         }
-
     }
-
 
     private void UpdateAnimator()
     {
+        if (IsDead) return;
+
         float damping = 0.1f;
         float delta = Time.deltaTime;
 
-        // Aim용 파라미터 (d1)
         animator.SetFloat("d1", isAiming ? moveInput.magnitude : 0f, damping, delta);
-
-        // 일반 이동용 파라미터 (MoveSpeed)
         animator.SetFloat("MoveSpeed", moveInputRaw.magnitude, damping, delta);
-
-        // 조준 상태
         animator.SetBool("IsAiming", isAiming);
-
-        // 애니메이션 속도 조절
         animator.speed = moveInput.magnitude > 0.1f ? 1.4f : 1.0f;
-
-        Debug.Log($"[Animator] MoveSpeed = {moveInput.magnitude}");
-
     }
-
 
     public override void TakeDamage(float amount)
     {
-        if (IsInvincible || isDead) return;
+        if (IsInvincible || IsDead) return;
 
         base.TakeDamage(amount);
 
-        if (!isDead)
+        if (!IsDead)
         {
             SetState(new StaggerState(this));
         }
     }
-
 
     public bool IsInvincible { get; private set; }
 
@@ -169,5 +165,44 @@ public class PlayerController : BasePlayerController
     {
         yield return new WaitForSeconds(duration);
         IsInvincible = false;
+    }
+
+    public void EquipBow()
+    {
+        if (bow != null) return;
+
+        GameObject bowPrefab = Resources.Load<GameObject>("Bow");
+        if (bowPrefab == null)
+        {
+            Debug.LogError("Bow 프리팹이 Resources/Bow에 없습니다.");
+            return;
+        }
+
+        Transform leftHand = animator.GetBoneTransform(HumanBodyBones.LeftHand);
+        if (leftHand == null)
+        {
+            Debug.LogError("Left hand bone을 찾을 수 없습니다.");
+            return;
+        }
+
+        bow = Instantiate(bowPrefab, leftHand);
+        bow.transform.localPosition = Vector3.zero;
+        bow.transform.localRotation = Quaternion.identity;
+
+        firePoint = bow.transform.Find("FirePoint");
+        if (firePoint == null)
+        {
+            Debug.LogWarning("FirePoint 오브젝트를 Bow 내부에서 찾을 수 없습니다.");
+        }
+    }
+
+    private void HandleDeath()
+    {
+        SetState(new DieState(this));
+    }
+    private void HandleRevive()
+    {
+        SetState(new IdleState(this));
+        animator.Play("Idle");        
     }
 }

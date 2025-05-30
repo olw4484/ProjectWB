@@ -12,9 +12,9 @@ public class AimState : BasePlayerState
 
     public override void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (!controller.IsAiming)
         {
-            controller.SetState(new DrawState(controller));
+            controller.SetState(new IdleState(controller));
             return;
         }
 
@@ -22,17 +22,15 @@ public class AimState : BasePlayerState
         {
             controller.Move();
         }
-        else
+
+        if (Input.GetMouseButtonDown(0)) // 좌클릭 시 발사 준비
         {
-            controller.SetState(new IdleState(controller));
-            return;
+            controller.SetState(new DrawState(controller));
         }
     }
 
-
     public override void Exit()
     {
-        // 필요시 조준 해제 처리
         controller.Animator.SetBool("IsAiming", false);
     }
 }
