@@ -2,12 +2,19 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController), typeof(Animator))]
-public class PlayerController : BasePlayerController
+public class PlayerController : BasePlayerController, IHitReceiver
 {
     [Header("컴포넌트")]
     private Animator animator;
     private CharacterController characterController;
     public CharacterController CharacterController => characterController;
+    [SerializeField] private InputManager input;
+    [SerializeField] private CameraManager cameraManager;
+    //[SerializeField] private Transform cameraPivot;
+    //[SerializeField] private float mouseSensitivity = 2f;
+
+    //private float yaw;
+    //private float pitch;
 
     [Header("이동 관련")]
     [SerializeField] private float moveSpeed = 3.0f;
@@ -45,16 +52,25 @@ public class PlayerController : BasePlayerController
         OnDeath += HandleDeath;
         OnRevive += HandleRevive;
         SetState(new IdleState(this));
+
+        //yaw = transform.eulerAngles.y;
+        //pitch = 10f;
     }
 
     protected override void Update()
     {
         if (IsDead) return;
 
+        if (input != null && cameraManager != null)
+        {
+            cameraManager.SetAiming(input.AimPressed);
+        }
+
         GetInput();
         HandleStateInput();
         base.Update();
         UpdateAnimator();
+        Debug.Log("InputManager 업데이트 중");
     }
 
     private void OnDisable()
@@ -63,6 +79,10 @@ public class PlayerController : BasePlayerController
         OnRevive -= HandleRevive;
     }
 
+    private void LateUpdate()
+    {
+        //HandleCameraRotation();
+    }
 
     private void GetInput()
     {
@@ -116,7 +136,7 @@ public class PlayerController : BasePlayerController
             camForward.Normalize();
             camRight.Normalize();
 
-            moveDir = camForward * moveInput.z + camRight * moveInput.x;
+            moveDir = (camForward * moveInput.z) + (camRight * moveInput.x);
         }
 
         transform.Translate(moveDir * Time.deltaTime * moveSpeed, Space.World);
@@ -126,6 +146,8 @@ public class PlayerController : BasePlayerController
             Quaternion targetRot = Quaternion.LookRotation(moveDir);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
         }
+
+        characterController.Move(moveDir * moveSpeed * Time.deltaTime);
     }
 
     private void UpdateAnimator()
@@ -203,6 +225,46 @@ public class PlayerController : BasePlayerController
     private void HandleRevive()
     {
         SetState(new IdleState(this));
-        animator.Play("Idle");        
+        animator.Play("Idle");
     }
+    public void Stagger(float duration)
+    {
+        SetState(new StaggerState(this));
+    }
+
+    //private void HandleCameraRotation()
+    //{
+    //    
+    //    float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+    //    float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+    //
+    //    yaw += mouseX;
+    //    pitch -= mouseY;
+    //    pitch = Mathf.Clamp(pitch, -30f, 70f); 
+    //
+    //    // 카메라 피벗 회전
+    //    cameraPivot.rotation = Quaternion.Euler(pitch, yaw, 0f);
+    //
+    //    
+    //    if (isAiming)
+    //    {
+    //        Vector3 lookDir = cameraPivot.forward;
+    //        lookDir.y = 0f;
+    //        if (lookDir.sqrMagnitude > 0.01f)
+    //        {
+    //            Quaternion targetRot = Quaternion.LookRotation(lookDir);
+    //            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 12f);
+    //        }
+    //    }
+    //}
+
+    public void TakeHit(float damage, Vector3 hitPoint, Vector3 hitNormal)
+    {
+        // 데미지 처리
+        TakeDamage(damage);
+
+        // 피격 이펙트 등 처리 필요시
+        Debug.Log($"플레이어가 피격됨! 위치: {hitPoint}, 피해량: {damage}");
+    }
+
 }

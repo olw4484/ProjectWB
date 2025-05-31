@@ -1,17 +1,16 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class WerebearAttackState : BaseEnemyState
 {
-    private Transform player;
-    private UnityEngine.AI.NavMeshAgent agent;
-
-    private float attackCooldown = 1.5f;
-    private float timer;
+    private float timer = 0f;
+    private float attackDelay = 1.5f;
     private bool hasAttacked = false;
+
+    private NavMeshAgent agent;
 
     public WerebearAttackState(WerebearStateMachine stateMachine) : base(stateMachine)
     {
-        player = stateMachine.Player;
         agent = stateMachine.Agent;
     }
 
@@ -20,36 +19,68 @@ public class WerebearAttackState : BaseEnemyState
         agent.isStopped = true;
         animator.SetBool("IsMoving", false);
 
-        int randomAttack = Random.Range(0, 2);
-        animator.SetInteger("AttackIndex", randomAttack);
+        FacePlayer();
 
+        var phase = stateMachine.WerebearAI.CurrentPhase;
+        int randomAttack;
+
+        if (phase == WerebearAI.WerebearPhase.Phase1)
+        {
+            randomAttack = Random.Range(0, 2); // 0 or 1
+        }
+        else if (phase == WerebearAI.WerebearPhase.Phase2)
+        {
+            randomAttack = Random.Range(0, 3); // Phase 2 logic
+        }
+        else
+        {
+            randomAttack = Phase3ComboStep(); // Phase 3 logic
+        }
+
+        animator.SetInteger("AttackIndex", randomAttack);
         hasAttacked = true;
         timer = 0f;
 
-        Debug.Log($"Entering Attack: Index {randomAttack}");
+        Debug.Log($"[Attack] Phase: {phase}, Index: {randomAttack}");
     }
 
     public override void Update()
     {
         timer += Time.deltaTime;
 
-        // 공격 쿨타임 후 상태 전환
-        if (timer > attackCooldown)
+        if (timer >= attackDelay)
         {
-            float distance = Vector3.Distance(transform.position, player.position);
-
-            if (distance > 3f)
-                stateMachine.SetState(new WerebearChaseState(stateMachine));
+            float distance = Vector3.Distance(transform.position, stateMachine.Player.position);
+            if (distance < 5f)
+            {
+                stateMachine.SetState(new WerebearAttackState(stateMachine));
+            }
             else
-                stateMachine.SetState(new WerebearIdleState(stateMachine));
+            {
+                stateMachine.SetState(new WerebearChaseState(stateMachine));
+            }
         }
     }
 
     public override void Exit()
     {
-        animator.SetInteger("AttackIndex", -1); // 상태 초기화
-        agent.isStopped = false;
+        Debug.Log("[State] Exit Attack");
+    }
 
-        Debug.Log("Exiting Attack");
+    private void FacePlayer()
+    {
+        Vector3 direction = (stateMachine.Player.position - transform.position).normalized;
+        direction.y = 0f;
+        if (direction.sqrMagnitude > 0.01f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, 360f * Time.deltaTime);
+        }
+    }
+
+    private int Phase3ComboStep()
+    {
+      
+        return Random.Range(0, 4);
     }
 }

@@ -18,8 +18,15 @@ public class WerebearChaseState : BaseEnemyState
     {
         animator.SetBool("IsMoving", true);
         agent.isStopped = false;
-        Debug.Log("Entering Chase");
+
+        if (stateMachine.WerebearAI.CurrentPhase == WerebearAI.WerebearPhase.Phase2)
+            agent.speed *= 1.25f;
+
+        else if (stateMachine.WerebearAI.CurrentPhase == WerebearAI.WerebearPhase.Phase3)
+            agent.speed *= 1.4f;
+
         agent.updateRotation = false;
+        Debug.Log("Entering Chase");
     }
 
     public override void Update()
@@ -27,32 +34,48 @@ public class WerebearChaseState : BaseEnemyState
         if (player == null) return;
 
         float distance = Vector3.Distance(transform.position, player.position);
-
-        // 목적지 지정
         agent.SetDestination(player.position);
 
-        float speed = agent.velocity.magnitude / agent.speed; // 0~1 정규화
-        animator.SetFloat("MoveSpeed", speed, 0.2f, Time.deltaTime); // Damping 적용
+        if (agent.desiredVelocity.sqrMagnitude > 0.1f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(agent.desiredVelocity.normalized);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
+        }
 
-        // 공격 사거리 도달 시 전이
+        // 이동 애니메이션 보간
+        float speed = agent.velocity.magnitude / agent.speed;
+        animator.SetFloat("MoveSpeed", speed, 0.2f, Time.deltaTime);
+
+        // 상태 전이
+        var phase = stateMachine.WerebearAI.CurrentPhase;
+
+        if (phase >= WerebearAI.WerebearPhase.Phase2 && distance < 6f)
+        {
+            stateMachine.SetState(new DashAttackState(stateMachine.WerebearAI, stateMachine.Animator, stateMachine.AttackManager, stateMachine));
+            return;
+        }
+
         if (distance < attackRange)
         {
             stateMachine.SetState(new WerebearAttackState(stateMachine));
             return;
         }
 
-        // 추적 범위 벗어나면 Idle로 전환
         if (distance > chaseRange)
         {
             stateMachine.SetState(new WerebearIdleState(stateMachine));
         }
     }
 
+
     public override void Exit()
     {
         animator.SetBool("IsMoving", false);
         animator.SetFloat("MoveSpeed", 0f);
         agent.isStopped = true;
+
+        agent.speed = stateMachine.WerebearAI.Agent.speed;
+
         Debug.Log("Exiting Chase");
     }
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class BaseEnemy : MonoBehaviour
+public abstract class BaseEnemy : MonoBehaviour, IHitReceiver
 {
     [Header("공통 스탯")]
     public float maxHP = 100f;
@@ -43,5 +43,9 @@ public abstract class BaseEnemy : MonoBehaviour
 
         // 사망 후 처리를 위해 일정 시간 뒤 제거
         Destroy(gameObject, 3f);
+    }
+
+    public void TakeHit(float damage, Vector3 hitPoint, Vector3 hitNormal)
+    {
     }
 }

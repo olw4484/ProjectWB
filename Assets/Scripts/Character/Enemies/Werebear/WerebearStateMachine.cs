@@ -9,8 +9,15 @@ public class WerebearStateMachine : MonoBehaviour
     public bool IsDead { get; private set; } = false;
     public Transform Player { get; private set; }
     public NavMeshAgent Agent { get; private set; }
-    
 
+    public WerebearAI WerebearAI { get; private set; }
+
+    public AttackPatternManager AttackManager { get; private set; }
+
+    private void Awake()
+    {
+        AttackManager = GetComponent<AttackPatternManager>();
+    }
     private void Start()
     {
         // 초기 상태는 Idle
@@ -34,6 +41,7 @@ public class WerebearStateMachine : MonoBehaviour
         this.Player = player;
         this.Agent = agent;
         this.Animator = animator;
+        this.WerebearAI = GetComponent<WerebearAI>();
 
         SetState(new WerebearIdleState(this));
     }
