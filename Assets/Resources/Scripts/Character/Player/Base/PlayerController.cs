@@ -10,11 +10,10 @@ public class PlayerController : BasePlayerController, IHitReceiver
     public CharacterController CharacterController => characterController;
     [SerializeField] private InputManager input;
     [SerializeField] private CameraManager cameraManager;
-    //[SerializeField] private Transform cameraPivot;
-    //[SerializeField] private float mouseSensitivity = 2f;
-
-    //private float yaw;
-    //private float pitch;
+    [SerializeField] private Transform cameraPivot;
+    [SerializeField] private float mouseSensitivity = 2f;
+    private float yaw;
+    private float pitch;
 
     [Header("이동 관련")]
     [SerializeField] private float moveSpeed = 3.0f;
@@ -51,26 +50,24 @@ public class PlayerController : BasePlayerController, IHitReceiver
         base.Start();
         OnDeath += HandleDeath;
         OnRevive += HandleRevive;
+        yaw = cameraPivot.eulerAngles.y;
+        pitch = cameraPivot.eulerAngles.x;
         SetState(new IdleState(this));
 
-        //yaw = transform.eulerAngles.y;
-        //pitch = 10f;
     }
 
     protected override void Update()
     {
         if (IsDead) return;
 
-        if (input != null && cameraManager != null)
-        {
-            cameraManager.SetAiming(input.AimPressed);
-        }
+        // 조준 상태 업데이트
+        isAiming = Input.GetMouseButton(1);
+        cameraManager?.SetAiming(isAiming);
 
         GetInput();
         HandleStateInput();
         base.Update();
         UpdateAnimator();
-        Debug.Log("InputManager 업데이트 중");
     }
 
     private void OnDisable()
@@ -81,7 +78,8 @@ public class PlayerController : BasePlayerController, IHitReceiver
 
     private void LateUpdate()
     {
-        //HandleCameraRotation();
+        HandleCameraRotation();
+        CameraToChar();
     }
 
     private void GetInput()
@@ -161,6 +159,13 @@ public class PlayerController : BasePlayerController, IHitReceiver
         animator.SetFloat("MoveSpeed", moveInputRaw.magnitude, damping, delta);
         animator.SetBool("IsAiming", isAiming);
         animator.speed = moveInput.magnitude > 0.1f ? 1.4f : 1.0f;
+
+        if (isAiming)
+        {
+            animator.SetFloat("Horizontal", inputDir.x, 0.1f, Time.deltaTime);
+            animator.SetFloat("Vertical", inputDir.y, 0.1f, Time.deltaTime);
+        }
+
     }
 
     public override void TakeDamage(float amount)
@@ -232,31 +237,37 @@ public class PlayerController : BasePlayerController, IHitReceiver
         SetState(new StaggerState(this));
     }
 
-    //private void HandleCameraRotation()
-    //{
-    //    
-    //    float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-    //    float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
-    //
-    //    yaw += mouseX;
-    //    pitch -= mouseY;
-    //    pitch = Mathf.Clamp(pitch, -30f, 70f); 
-    //
-    //    // 카메라 피벗 회전
-    //    cameraPivot.rotation = Quaternion.Euler(pitch, yaw, 0f);
-    //
-    //    
-    //    if (isAiming)
-    //    {
-    //        Vector3 lookDir = cameraPivot.forward;
-    //        lookDir.y = 0f;
-    //        if (lookDir.sqrMagnitude > 0.01f)
-    //        {
-    //            Quaternion targetRot = Quaternion.LookRotation(lookDir);
-    //            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 12f);
-    //        }
-    //    }
-    //}
+    private void HandleCameraRotation()
+    {
+        if (!isAiming) return;
+
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+
+        yaw += mouseX;
+        pitch -= mouseY;
+        pitch = Mathf.Clamp(pitch, -40f, 60f); // 상하 제한
+
+        cameraPivot.rotation = Quaternion.Euler(pitch, yaw, 0f);
+    }
+
+    private void CameraToChar()
+    {
+        if (isAiming)
+        {
+            // 카메라가 바라보는 방향을 기준으로 캐릭터 회전
+            Vector3 lookDirection = cameraPivot.forward;
+            lookDirection.y = 0f;
+
+            if (lookDirection.sqrMagnitude > 0.01f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 12f);
+            }
+        }
+
+    }
+
 
     public void TakeHit(float damage, Vector3 hitPoint, Vector3 hitNormal)
     {

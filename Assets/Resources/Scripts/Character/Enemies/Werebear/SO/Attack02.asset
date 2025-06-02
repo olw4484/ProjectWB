@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af535e762b2fb524086e223cf0a059a0, type: 3}
   m_Name: Attack02
   m_EditorClassIdentifier: 
-  patternName: Phase2_DashAttack
+  patternName: Werebear_Attack02
   damage: 25
   animationClip: {fileID: 7400000, guid: 28d38008dc53135468b13c13e90051b3, type: 2}
   hitboxEvents:
