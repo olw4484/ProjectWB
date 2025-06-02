@@ -3,26 +3,27 @@ using UnityEngine;
 public class FireState : BasePlayerState
 {
     private bool hasFired = false;
+    private readonly int fireHash = Animator.StringToHash("Fire");
 
     public FireState(PlayerController controller) : base(controller) { }
 
     public override void Enter()
     {
         Debug.Log("상태 전환: FireState");
-
         controller.Animator.SetTrigger("Fire");
         hasFired = false;
     }
 
     public override void Update()
     {
-        AnimatorStateInfo stateInfo = controller.Animator.GetCurrentAnimatorStateInfo(0);
+        AnimatorStateInfo stateInfo = controller.Animator.GetCurrentAnimatorStateInfo(1); // UpperBody Layer
+        Debug.Log($"[FireState] 현재 상태 해시: {stateInfo.shortNameHash}");
 
-        if (stateInfo.IsName("Fire"))
+        if (stateInfo.shortNameHash == fireHash)
         {
             if (!hasFired && stateInfo.normalizedTime >= 0.35f)
             {
-                FireArrow();
+                controller.FireArrow();
                 hasFired = true;
             }
 
@@ -31,18 +32,5 @@ public class FireState : BasePlayerState
                 controller.SetState(new RecoverState(controller));
             }
         }
-    }
-
-    private void FireArrow()
-    {
-        if (controller.FirePoint == null || controller.ArrowPrefab == null)
-        {
-            Debug.LogWarning("FirePoint 또는 ArrowPrefab이 설정되지 않았습니다.");
-            return;
-        }
-
-        GameObject arrow = Object.Instantiate(controller.ArrowPrefab, controller.FirePoint.position, controller.FirePoint.rotation);
-        Rigidbody rb = arrow.GetComponent<Rigidbody>();
-        rb?.AddForce(controller.FirePoint.forward * 30f, ForceMode.Impulse);
     }
 }

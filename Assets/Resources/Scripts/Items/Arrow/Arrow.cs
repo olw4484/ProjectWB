@@ -2,25 +2,24 @@ using UnityEngine;
 
 public class Arrow : MonoBehaviour
 {
-    public float damage = 20f;
-    public float lifetime = 5f;
+    [SerializeField] private float speed = 40f;
+    [SerializeField] private float lifeTime = 5f;
+
+    private Rigidbody rb;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
 
     private void Start()
     {
-        Destroy(gameObject, lifetime);
+        rb.velocity = transform.forward * speed;
+        Destroy(gameObject, lifeTime);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Enemy"))
-        {
-            var enemy = other.GetComponent<BaseEnemy>();
-            if (enemy != null)
-            {
-                enemy.TakeDamage(damage);
-            }
-        }
-
-        Destroy(gameObject); // 명중 후 제거
+        Destroy(gameObject); 
     }
 }

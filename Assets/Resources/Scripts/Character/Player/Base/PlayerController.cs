@@ -14,6 +14,8 @@ public class PlayerController : BasePlayerController, IHitReceiver
     [SerializeField] private float mouseSensitivity = 2f;
     private float yaw;
     private float pitch;
+    //[SerializeField] private Transform leftHandSlot;
+    [SerializeField] private PlayerStatus playerStatus;
 
     [Header("이동 관련")]
     [SerializeField] private float moveSpeed = 3.0f;
@@ -43,16 +45,25 @@ public class PlayerController : BasePlayerController, IHitReceiver
     {
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
+
+        if (playerStatus == null)
+        {
+            playerStatus = GetComponent<PlayerStatus>();
+            if (playerStatus == null)
+                Debug.LogError("PlayerStatus 컴포넌트를 찾을 수 없습니다.");
+        }
     }
 
     protected override void Start()
     {
         base.Start();
+        EquipBow();
         OnDeath += HandleDeath;
         OnRevive += HandleRevive;
         yaw = cameraPivot.eulerAngles.y;
         pitch = cameraPivot.eulerAngles.x;
         SetState(new IdleState(this));
+
 
     }
 
@@ -60,10 +71,10 @@ public class PlayerController : BasePlayerController, IHitReceiver
     {
         if (IsDead) return;
 
-        // 조준 상태 업데이트
-        isAiming = Input.GetMouseButton(1);
-        cameraManager?.SetAiming(isAiming);
+        isAiming = playerStatus.IsAiming.Value;
+        //cameraManager?.SetAiming(isAiming);
 
+        
         GetInput();
         HandleStateInput();
         base.Update();
@@ -95,6 +106,7 @@ public class PlayerController : BasePlayerController, IHitReceiver
         inputDir = new Vector2(h, v);
 
         isAiming = Input.GetMouseButton(1);
+        HandleAimingInput();
     }
 
     private void HandleStateInput()
@@ -110,11 +122,17 @@ public class PlayerController : BasePlayerController, IHitReceiver
             SetState(new IdleState(this));
         }
 
+        if (currentState is AimState && Input.GetMouseButtonDown(0))
+        {
+            SetState(new DrawState(this));
+        }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             SetState(new DodgeState(this));
             return;
         }
+
     }
 
     public override void Move()
@@ -198,29 +216,18 @@ public class PlayerController : BasePlayerController, IHitReceiver
     {
         if (bow != null) return;
 
-        GameObject bowPrefab = Resources.Load<GameObject>("Bow");
+        GameObject bowPrefab = Resources.Load<GameObject>("Prefabs/Items/Bow");
         if (bowPrefab == null)
         {
-            Debug.LogError("Bow 프리팹이 Resources/Bow에 없습니다.");
+            Debug.LogError("Bow 프리팹이 없습니다.");
             return;
         }
 
-        Transform leftHand = animator.GetBoneTransform(HumanBodyBones.LeftHand);
-        if (leftHand == null)
-        {
-            Debug.LogError("Left hand bone을 찾을 수 없습니다.");
-            return;
-        }
+        Transform hand = animator.GetBoneTransform(HumanBodyBones.LeftHand);
+        bow = Instantiate(bowPrefab, hand);
+        bow.transform.localPosition = new Vector3(-0.175f, 0.1f, -0.1f);
+        bow.transform.localRotation = Quaternion.Euler(-24.446f, -89.878f, -26.257f);
 
-        bow = Instantiate(bowPrefab, leftHand);
-        bow.transform.localPosition = Vector3.zero;
-        bow.transform.localRotation = Quaternion.identity;
-
-        firePoint = bow.transform.Find("FirePoint");
-        if (firePoint == null)
-        {
-            Debug.LogWarning("FirePoint 오브젝트를 Bow 내부에서 찾을 수 없습니다.");
-        }
     }
 
     private void HandleDeath()
@@ -277,5 +284,65 @@ public class PlayerController : BasePlayerController, IHitReceiver
         // 피격 이펙트 등 처리 필요시
         Debug.Log($"플레이어가 피격됨! 위치: {hitPoint}, 피해량: {damage}");
     }
+
+    public void FireArrow()
+    {
+        Debug.Log("FireArrow 호출됨");
+
+        if (FirePoint == null || ArrowPrefab == null)
+        {
+            Debug.LogWarning("FirePoint 또는 ArrowPrefab이 설정되지 않았습니다.");
+            return;
+        }
+
+        GameObject arrow = Instantiate(ArrowPrefab, FirePoint.position, FirePoint.rotation);
+        Debug.Log("화살 인스턴스 생성됨");
+
+        Rigidbody rb = arrow.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.AddForce(FirePoint.forward * 30f, ForceMode.Impulse);
+            Debug.Log("화살에 힘 가해짐");
+        }
+        else
+        {
+            Debug.LogWarning("화살 프리팹에 Rigidbody 없음");
+        }
+    }
+
+
+    private void HandleAimingInput()
+    {
+        if (Input.GetMouseButtonDown(1))
+            playerStatus.IsAiming.Value = true;
+
+        if (Input.GetMouseButtonUp(1))
+            playerStatus.IsAiming.Value = false;
+    }
+
+    public void OnDrawEnd()
+    {
+        Debug.Log("애니메이션 이벤트: Draw 끝 - Fire로 전환");
+        SetState(new FireState(this));
+    }
+
+    public void OnFireMid()
+    {
+        Debug.Log("애니메이션 이벤트: 화살 발사!");
+        FireArrow();
+    }
+
+    public void OnFireEnd()
+    {
+        Debug.Log("애니메이션 이벤트: Fire 끝 - Recover로 전환");
+        SetState(new RecoverState(this));
+    }
+
+    public void OnRecoverEnd()
+    {
+        Debug.Log("애니메이션 이벤트: Recover 끝 - Aim 유지 또는 Idle로 전환");
+        SetState(IsAiming ? new AimState(this) : new IdleState(this));
+    }
+
 
 }
