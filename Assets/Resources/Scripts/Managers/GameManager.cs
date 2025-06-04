@@ -33,6 +33,8 @@ public class GameManager : MonoBehaviour
         {
             TogglePause();
         }
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     public void SetState(GameState newState)
