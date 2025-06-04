@@ -2,8 +2,11 @@ using UnityEngine;
 
 public class Arrow : MonoBehaviour
 {
+    [Header("화살관련")]
     [SerializeField] private float speed = 40f;
     [SerializeField] private float lifeTime = 5f;
+    [SerializeField] private float damage = 30f;
+    public float Damage => damage;
 
     private Rigidbody rb;
 
@@ -27,6 +30,11 @@ public class Arrow : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.TryGetComponent<IHitReceiver>(out var target))
+        {
+            target.TakeHit(Damage, transform.position, -transform.forward);
+        }
+
         Destroy(gameObject);
     }
 }

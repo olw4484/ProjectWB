@@ -61,7 +61,7 @@ public class WerebearAI : MonoBehaviour, IHitReceiver
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         Debug.Log($"[WerebearAI] 현재 체력: {currentHealth} / {maxHealth}");
     }
-
+    
 
     private void CheckPhaseTransition()
     {
@@ -101,7 +101,21 @@ public class WerebearAI : MonoBehaviour, IHitReceiver
 
     public void TakeHit(float damage, Vector3 hitPoint, Vector3 hitNormal)
     {
-        Debug.Log($"[WerebearAI] {damage} 피해를 받았습니다.");
+        if (stateMachine.IsDead) return;
+
+        TakeDamage(damage);
+
+        if (currentHealth <= 0f)
+        {
+            stateMachine.Die();
+        }
+        else
+        {
+            stateMachine.SetState(new WerebearHitState(stateMachine));
+        }
+
+        Debug.Log($"[WerebearAI] {damage} 피해를 받음 / 남은 체력 {currentHealth}");
     }
+
 
 }
