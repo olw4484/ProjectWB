@@ -16,6 +16,7 @@ public class PlayerController : BasePlayerController, IHitReceiver
     private float pitch;
     //[SerializeField] private Transform leftHandSlot;
     [SerializeField] private PlayerStatus playerStatus;
+   
 
     [Header("이동 관련")]
     [SerializeField] private float moveSpeed = 3.0f;
@@ -34,10 +35,9 @@ public class PlayerController : BasePlayerController, IHitReceiver
 
     [Header("장비 관련")]
     [SerializeField] private GameObject arrowPrefab;
+    [SerializeField] private GameObject bow;
+    [SerializeField] private Transform firePoint;
     public GameObject ArrowPrefab => arrowPrefab;
-
-    private GameObject bow;
-    private Transform firePoint;
     public Transform FirePoint => firePoint;
     public GameObject Bow => bow;
 
@@ -287,28 +287,28 @@ public class PlayerController : BasePlayerController, IHitReceiver
 
     public void FireArrow()
     {
-        Debug.Log("FireArrow 호출됨");
-
         if (FirePoint == null || ArrowPrefab == null)
         {
             Debug.LogWarning("FirePoint 또는 ArrowPrefab이 설정되지 않았습니다.");
             return;
         }
 
-        GameObject arrow = Instantiate(ArrowPrefab, FirePoint.position, FirePoint.rotation);
-        Debug.Log("화살 인스턴스 생성됨");
+        GameObject arrow = Instantiate(ArrowPrefab, FirePoint.position, Quaternion.identity);
 
-        Rigidbody rb = arrow.GetComponent<Rigidbody>();
-        if (rb != null)
+        Vector3 shootDir = cameraPivot.forward;
+        shootDir.y = Mathf.Clamp(shootDir.y, -0.1f, 0.2f); 
+        shootDir.Normalize();
+
+        arrow.transform.rotation = Quaternion.LookRotation(shootDir);
+
+        Arrow arrowScript = arrow.GetComponent<Arrow>();
+        if (arrowScript != null)
         {
-            rb.AddForce(FirePoint.forward * 30f, ForceMode.Impulse);
-            Debug.Log("화살에 힘 가해짐");
-        }
-        else
-        {
-            Debug.LogWarning("화살 프리팹에 Rigidbody 없음");
+            arrowScript.SetDirection(shootDir); 
         }
     }
+
+
 
 
     private void HandleAimingInput()

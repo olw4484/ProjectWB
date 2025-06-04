@@ -7,6 +7,13 @@ public class Arrow : MonoBehaviour
 
     private Rigidbody rb;
 
+    private Vector3 shootDirection = Vector3.forward;
+
+    public void SetDirection(Vector3 direction)
+    {
+        shootDirection = direction.normalized;
+    }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -14,12 +21,12 @@ public class Arrow : MonoBehaviour
 
     private void Start()
     {
-        rb.velocity = transform.forward * speed;
+        rb.velocity = shootDirection * speed;
         Destroy(gameObject, lifeTime);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Destroy(gameObject); 
+        Destroy(gameObject);
     }
 }
