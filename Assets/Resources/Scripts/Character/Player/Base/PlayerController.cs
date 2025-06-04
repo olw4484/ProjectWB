@@ -57,7 +57,7 @@ public class PlayerController : BasePlayerController, IHitReceiver
     protected override void Start()
     {
         base.Start();
-        EquipBow();
+        //EquipBow();
         OnDeath += HandleDeath;
         OnRevive += HandleRevive;
         yaw = cameraPivot.eulerAngles.y;
@@ -74,7 +74,7 @@ public class PlayerController : BasePlayerController, IHitReceiver
         isAiming = playerStatus.IsAiming.Value;
         //cameraManager?.SetAiming(isAiming);
 
-        
+
         GetInput();
         HandleStateInput();
         base.Update();
@@ -212,23 +212,23 @@ public class PlayerController : BasePlayerController, IHitReceiver
         IsInvincible = false;
     }
 
-    public void EquipBow()
-    {
-        if (bow != null) return;
-
-        GameObject bowPrefab = Resources.Load<GameObject>("Prefabs/Items/Bow");
-        if (bowPrefab == null)
-        {
-            Debug.LogError("Bow 프리팹이 없습니다.");
-            return;
-        }
-
-        Transform hand = animator.GetBoneTransform(HumanBodyBones.LeftHand);
-        bow = Instantiate(bowPrefab, hand);
-        bow.transform.localPosition = new Vector3(-0.175f, 0.1f, -0.1f);
-        bow.transform.localRotation = Quaternion.Euler(-24.446f, -89.878f, -26.257f);
-
-    }
+    //public void EquipBow()
+    //{
+    //    if (bow != null) return;
+    //
+    //    GameObject bowPrefab = Resources.Load<GameObject>("Prefabs/Items/Bow");
+    //    if (bowPrefab == null)
+    //    {
+    //        Debug.LogError("Bow 프리팹이 없습니다.");
+    //        return;
+    //    }
+    //
+    //    Transform hand = animator.GetBoneTransform(HumanBodyBones.LeftHand);
+    //    bow = Instantiate(bowPrefab, hand);
+    //    bow.transform.localPosition = new Vector3(-0.175f, 0.1f, -0.1f);
+    //    bow.transform.localRotation = Quaternion.Euler(-24.446f, -89.878f, -26.257f);
+    //
+    //}
 
     private void HandleDeath()
     {
