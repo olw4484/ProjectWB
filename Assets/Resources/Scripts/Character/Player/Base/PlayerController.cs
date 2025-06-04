@@ -137,34 +137,30 @@ public class PlayerController : BasePlayerController, IHitReceiver
 
     public override void Move()
     {
-        if (IsDead) return;
+        Vector3 moveDir = new Vector3(moveInput.x, 0, moveInput.z);
 
-        Vector3 moveDir = new Vector3(moveInput.x, 0f, moveInput.z);
+        
+        Vector3 camForward = cameraPivot.forward;
+        Vector3 camRight = cameraPivot.right;
 
-        if (Camera.main != null)
+        camForward.y = 0;
+        camRight.y = 0;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        Vector3 worldDir = camForward * moveInput.z + camRight * moveInput.x;
+
+        
+        characterController.Move(worldDir * moveSpeed * Time.deltaTime);
+
+        
+        if (worldDir.sqrMagnitude > 0.01f)
         {
-            Vector3 camForward = Camera.main.transform.forward;
-            Vector3 camRight = Camera.main.transform.right;
-
-            camForward.y = 0f;
-            camRight.y = 0f;
-
-            camForward.Normalize();
-            camRight.Normalize();
-
-            moveDir = (camForward * moveInput.z) + (camRight * moveInput.x);
-        }
-
-        transform.Translate(moveDir * Time.deltaTime * moveSpeed, Space.World);
-
-        if (moveDir.sqrMagnitude > 0.01f)
-        {
-            Quaternion targetRot = Quaternion.LookRotation(moveDir);
+            Quaternion targetRot = Quaternion.LookRotation(worldDir);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
         }
-
-        characterController.Move(moveDir * moveSpeed * Time.deltaTime);
     }
+
 
     private void UpdateAnimator()
     {
@@ -246,7 +242,6 @@ public class PlayerController : BasePlayerController, IHitReceiver
 
     private void HandleCameraRotation()
     {
-        if (!isAiming) return;
 
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
@@ -272,7 +267,6 @@ public class PlayerController : BasePlayerController, IHitReceiver
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 12f);
             }
         }
-
     }
 
 
