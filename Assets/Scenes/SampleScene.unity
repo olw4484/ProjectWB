@@ -771,6 +771,29 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a84767572a32d2d49a23e95d96b6fdd1, type: 2}
   - {fileID: 11400000, guid: cfae23e48abcacc41980501322657b64, type: 2}
   boneRoot: {fileID: 492655057}
+--- !u!136 &492655063
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492655046}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 3
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &585154839
 GameObject:
   m_ObjectHideFlags: 0
@@ -1338,7 +1361,7 @@ Transform:
   m_GameObject: {fileID: 1510894801}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.155, z: 0}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1543,6 +1566,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: Werebear gray
       objectReference: {fileID: 0}
+    - target: {fileID: 4665009348409887979, guid: ac179b04bb16e1143b0e0b466508528b,
+        type: 3}
+      propertyPath: m_Speed
+      value: 4.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6327566291861886133, guid: ac179b04bb16e1143b0e0b466508528b,
+        type: 3}
+      propertyPath: maxHealth
+      value: 800
+      objectReference: {fileID: 0}
     - target: {fileID: 6327566291861886133, guid: ac179b04bb16e1143b0e0b466508528b,
         type: 3}
       propertyPath: playerTarget
@@ -1561,17 +1594,17 @@ PrefabInstance:
     - target: {fileID: 9027981695789020233, guid: ac179b04bb16e1143b0e0b466508528b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.222
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9027981695789020233, guid: ac179b04bb16e1143b0e0b466508528b,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.09
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9027981695789020233, guid: ac179b04bb16e1143b0e0b466508528b,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.077
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 9027981695789020233, guid: ac179b04bb16e1143b0e0b466508528b,
         type: 3}
@@ -1620,6 +1653,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 492655058}
+    - targetCorrespondingSourceObject: {fileID: 3777690022798491354, guid: ac179b04bb16e1143b0e0b466508528b,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 492655063}
     - targetCorrespondingSourceObject: {fileID: 2352938245788525778, guid: ac179b04bb16e1143b0e0b466508528b,
         type: 3}
       insertIndex: -1
@@ -1641,6 +1678,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2410027449931761553, guid: d8a815c8e4fa7ee4f8997a64800cfbd4,
+        type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2770166953213080698, guid: d8a815c8e4fa7ee4f8997a64800cfbd4,
         type: 3}
       propertyPath: input
